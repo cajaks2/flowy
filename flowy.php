@@ -1,3 +1,4 @@
+
 <?php
 $servername = "localhost";
 $username = "root";
@@ -19,7 +20,6 @@ if ($conn->connect_error) {
   $total = 0;
   $views = 0;
   $mins = 0;
-  $live = "There is no one currently streaming.";
   $streams = array();
   $counter = 0;
 while($row = $result->fetch_assoc ()) {
@@ -40,35 +40,7 @@ $result = $conn->query($sql);
  while($row = $result->fetch_assoc ()) {
         $mins = $row['time'];
     }
-$sql = "Select user_name,stream_name, viewers from Users where live=1";
-$result = $conn->query($sql);
- while($row = $result->fetch_assoc ()) {
-        $counter++;
- $streamshort=$row['stream_name'];
-        $usershort = $row['user_name'];
-        if(strlen($streamshort)>17){
-          $streamshort=substr($streamshort,0,20)."...";
-        }
-        if(strlen($usershort)>17){
-          $usershort=substr($usershort,0,20)."...";
-        }
-      $views = $row['viewers'];
-      if($views<0){
-        $views = 0;
-      }
-       $streams[]="<div class='col-md-3 col-xs-6'>
-       <a href=../users/user?user={$row['user_name']}>
-       <i class='icon-imac fa-4x'></i>
-             <h4>
-                <strong>{$streamshort}</a></strong>
-              </h4>
-              <h5>By {$usershort} </h5>
-              <p>{$views} currently watching.</p>
-            </div>";
-    }
-    if($counter!=0){
-      $live="Current  live streams on Flowy";
-    }    
+
 $conn->close();
 
 echo "
@@ -83,7 +55,6 @@ echo "
   <meta name='description' content='Flowy: Live Streams' />
   <meta name='keywords' content='video streaming' />
   <meta name='author' content='Live Streams' />
- 
   <!--Mobile Specific Meta Tag-->
   <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'>
 
@@ -101,6 +72,28 @@ echo "
 
   <!--Modernizr extention-->
   <script src='js/libs/detectizr.min.js'></script>
+  <script src='js/jquery-1.9.1.js'></script>
+<script src='js/jquery-1.9.1.js'></script>
+<script type='text/javascript'>
+function loadStreams()
+{
+    $.ajax({ url: '../php/functions.php',
+        data: {'action':'loadStreams'},
+        type: 'post',
+        success: function(responseText) {
+                  $('#loadStreams').html(responseText);
+        }
+    });
+}
+     $(document).ready(function() {
+		 loadStreams();
+       var refreshId = setInterval(function() {
+          loadStreams();
+       }, 10000);
+    });
+</script>
+
+</script>
 </head>
 
 <body class='parallax'>
@@ -186,14 +179,10 @@ echo "
             <h2 class='block-header'>Live
               <span>Streams</span>
             </h2>
-            <span class='subtitle'>{$live}</span>
           </div>
 
-          <div class='row text-center'>";
-foreach ($streams as $value) {
-echo $value;
-}
-echo "
+          <div class='row text-center' id='loadStreams'>
+
           </div>
         </div>
       </section>
@@ -408,7 +397,7 @@ echo "
   <!-- Auto typing text -->
   <script src='js/plugins/typed.min.js'></script>
 
- 
+  
   <!-- Custom checkbox & radio plugin -->
   <script src='js/plugins/icheck.min.js'></script>
 
