@@ -63,7 +63,7 @@ $result = $conn->query($sql);
       if($views<0){
         $views = 0;
       }
-		$filename=$usern;
+		$filename=$usershort;
 		if(file_exists("/usr/local/nginx/html/users/images/thumbs/{$usershort}thumb.jpg")){
 			$filename = "../users/images/thumbs/{$usershort}thumb.jpg";
 		}else{

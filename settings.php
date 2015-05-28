@@ -84,7 +84,7 @@ function signUp(){
   if($result->num_rows ==0){
   $password = sha1($conn->real_escape_string($_POST['password'])); 
   $stream = htmlentities($conn->real_escape_string($_POST['streamname']));
-  $hash = sha1($password." ".$email); 
+  $hash = sha1($password." ".$email." ".time()); 
   $sql = "INSERT INTO Users (email, user_name, user_password, stream_name, hash)
   VALUES ('$email','$username','$password', '$stream','$hash' )";
   $result = $conn->query($sql);
@@ -102,6 +102,7 @@ function showSettings(){
       global $streamname;
       global $key;
       global $title;
+      global $imageloc;
       $title = "<h1>Error: <span>Please Log In</span> </h1>";
       $user = $_SESSION['username'];
       if(isset($_SESSION['username'])){
@@ -112,6 +113,11 @@ function showSettings(){
         $key = ($row[0]."?p=".md5($row[2]));
        $title = "<h1>$user: <span>User Information</span> </h1>";
       } 
+	if(file_exists("/usr/local/nginx/html/users/images/{$user}.jpg")){
+	$imageloc = $user;
+	}else{
+	$imageloc="default";
+	}
     }
      
     
@@ -330,7 +336,7 @@ location.reload();
           </div>
 
           <div class='margin-top margin-bottom'>
-            <img src='users/images/$username.jpg' alt='' id'previewimage'>
+            <img src='users/images/$imageloc.jpg' alt='' id'previewimage'>
           </div>
 
           <div class='row'>
