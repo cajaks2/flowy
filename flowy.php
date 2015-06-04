@@ -85,8 +85,19 @@ function loadStreams()
         }
     });
 }
+function topStreams()
+{
+    $.ajax({ url: '../php/functions.php',
+        data: {'action':'topStreams'},
+        type: 'post',
+        success: function(responseText) {
+                  $('#topStreams').html(responseText);
+        }
+    });
+}
      $(document).ready(function() {
 		 loadStreams();
+		 topStreams();
        var refreshId = setInterval(function() {
           loadStreams();
        }, 10000);
@@ -139,6 +150,9 @@ function loadStreams()
                <li>
                 <a href='#streams' class='scroll'>Streams</a>
               </li>
+			  <li>
+                <a href='#topStreamsSection' class='scroll'>Top Streams</a>
+              </li>
               <li>
                 <a href='#digit-animation' class='scroll'>Statistics</a>
               </li>
@@ -172,23 +186,50 @@ function loadStreams()
     <main class='content main-animation'>
 
       <!-- ***** STREAMS ***** -->
-      <section class='icons-block margin-top-2x' id='streams'>
+      <section class='digitizer text-center ' id='streams' >
 
         <div class='container'>
+					<div class='margin-top'>
+
           <div class='text-center'>
-            <h2 class='block-header'>Live
+            <h1 class='block-header'>Live
               <span>Streams</span>
-            </h2>
+            </h1>
           </div>
+<div class='margin-bottom'></div>
 
           <div class='row text-center' id='loadStreams'>
 
           </div>
+		  		  <div class='margin-bottom'></div>
+
         </div>
       </section>
 
-  
+   <main class='content main-animation'>
+
+      <!-- ***** Top Streams ***** -->
+      <section class='digitizer text-center' id='topStreamsSection' style='background-image: url(img/parallax-bg-inverted.jpg)' data-stellar-background-ratio='0.5'>
+
+        <div class='container'>
+			<div class='margin-top'>
+            <h1>Top
+              <span>Streamers</span>
+            </h1>
+          </div>
+<div class='margin-bottom'></div>
+          <div class='row text-center' id='topStreams'>
+
+          </div>
+		  <div class='margin-bottom'></div>
+
+        </div>
+		
+
+      </section>
+
     <main class='content main-animation'>
+	
  <section id='digit-animation' class='digitizer text-center' style='background-image: url(img/parallax-bg.jpg)' data-stellar-background-ratio='0.5'>
 
         <div class='color-overlay'></div>
