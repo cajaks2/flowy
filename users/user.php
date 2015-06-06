@@ -27,11 +27,11 @@ if ($conn->connect_error) {
   $streams = array();
   $counter = 0;
   $streamname = "";
+  $gamename="";
   $mins = 0;
   $live = "Not Currently Streaming";
 while($row = $result->fetch_assoc ()) {
         $views = $row["viewers"];
-
     }
 
   $counter=0;
@@ -50,16 +50,22 @@ $result = $conn->query($sql);
  while($row = $result->fetch_assoc ()) {
         $mins = $row["time"];
     }
-$sql = "Select stream_name, live, hash from Users where user_name = '{$username}'";
+$sql = "Select stream_name, live, hash, game_playing from Users where user_name = '{$username}'";
 $result = $conn->query($sql);
  while($row = $result->fetch_assoc ()) {
         $streamname = htmlentities($row["stream_name"]);
+		$gamename = htmlentities($row["game_playing"]);
         $hash = $row["hash"];
         if($row["live"]==true){
           $live = "Live";
         }
     }
-
+$gamestring = "";
+if(!empty($gamename)){
+	$gamestring="<h3 class=''>
+             <span>playing </span>$gamename
+          </h3>";
+}
 $conn->close();
 
 
@@ -158,6 +164,7 @@ echo '
           <h2 class="">
             '.$streamname.' <span>by</span> '.$username.'
           </h2>
+		  '.$gamestring.'
 
         <p class="margin-bottom">
         '.$live.'
@@ -173,6 +180,7 @@ jwplayer("mainVid").setup({
     file: "rtmp://178.62.77.84/flowy/'.$hash.'",
     height: 562,
     width: 1000,
+    image: "http://www.cooperandrewjackson.com/users/images/thumbs/'.$username.'thumb.jpg",
 
 });
 </script>

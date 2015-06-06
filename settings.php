@@ -100,16 +100,18 @@ function signUp(){
 function showSettings(){
       global $conn;
       global $streamname;
+	  global $gamename;
       global $key;
       global $title;
       global $imageloc;
       $title = "<h1>Error: <span>Please Log In</span> </h1>";
       $user = $_SESSION['username'];
       if(isset($_SESSION['username'])){
-      $sql = "SELECT hash,stream_name, user_password FROM Users WHERE '$user' = user_name" ;
+      $sql = "SELECT hash,stream_name, user_password, game_playing FROM Users WHERE '$user' = user_name" ;
       $result = $conn->query($sql);
       while($row = $result->fetch_row()) {
         $streamname = $row[1];
+		$gamename = $row[3];
         $key = ($row[0]."?p=".md5($row[2]));
        $title = "<h1>$user: <span>User Information</span> </h1>";
       } 
@@ -169,6 +171,17 @@ function changeStreamName()
         success: function(output) {
                   $('#streamname').text($('#streamnameInput').val().substring(0,35));
                   $('#streamnameInput').val('');
+        }
+    });
+}
+function changeGameName()
+{
+    $.ajax({ url: '../php/functions.php',
+        data: {'gamename':$('#gamenameInput').val().substring(0,35), 'action':'changeGameName'},
+        type: 'post',
+        success: function(output) {
+                  $('#gamename').text($('#gamenameInput').val().substring(0,35));
+                  $('#gamenameInput').val('');
         }
     });
 }
@@ -316,6 +329,16 @@ location.reload();
                   <p id='streamname'>$streamname </p>
                    <input type='text' name='streamnameInput' id='streamnameInput' placeholder='New Stream Name' required autocomplete='off'>
               <button onclick='changeStreamName()'>Submit</button>
+
+              </div>
+			   <div class='col-xs-2'>
+                  <i class='icon-skull fa-4x'></i>
+                </div>
+			      <div class='col-xs-10'>
+                  <h4>Current Game Playing </h4>
+                  <p id='gamename'>$gamename </p>
+                   <input type='text' name='gamenameInput' id='gamenameInput' placeholder='New Current Game' required autocomplete='off'>
+              <button onclick='changeGameName()'>Submit</button>
 
               </div>
             </div>
