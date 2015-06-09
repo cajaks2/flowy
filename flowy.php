@@ -5,6 +5,7 @@ $username = "root";
 $password = "mysqlpass";
 $dbname = "flowy";
 
+include "./php/functions.php";
 // Create connection
 
 
@@ -22,6 +23,7 @@ if ($conn->connect_error) {
   $mins = 0;
   $streams = array();
   $counter = 0;
+  $header = getHeader();
 while($row = $result->fetch_assoc ()) {
         $views = $row['totalsum'];
     }
@@ -134,12 +136,7 @@ function topStreams()
           <!-- Collect the nav links, forms, and other content for toggling -->
           <div class='collapse navbar-collapse' id='navbarMain'>
             <ul class='nav navbar-nav navbar-right'>
-              <li>
-                <a href='' class='btn btn-primary-outline' data-toggle='modal' data-target='#signUp'>Sign Up</a>
-              </li>
-              <li>
-                <a href='' data-toggle='modal' data-target='#login'>Login</a>
-              </li>
+              $header
             </ul>
 
             <ul class='nav navbar-nav collapsed-color'>

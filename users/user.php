@@ -3,6 +3,8 @@ $servername = "localhost";
 $username = "root";
 $password = "mysqlpass";
 $dbname = "flowy";
+include "../php/functions.php";
+
 $conn = new mysqli($servername, $username, $password, $dbname);
 // Check connection
 if ($conn->connect_error) {
@@ -28,7 +30,9 @@ if ($conn->connect_error) {
   $counter = 0;
   $streamname = "";
   $gamename="";
+  $backloc;
   $mins = 0;
+  $header = getHeader();
   $live = "Not Currently Streaming";
 while($row = $result->fetch_assoc ()) {
         $views = $row["viewers"];
@@ -50,19 +54,21 @@ $result = $conn->query($sql);
  while($row = $result->fetch_assoc ()) {
         $mins = $row["time"];
     }
-$sql = "Select stream_name, live, hash, game_playing from Users where user_name = '{$username}'";
+$sql = "Select stream_name, live, hash, game_playing, background_loc from Users where user_name = '{$username}'";
 $result = $conn->query($sql);
  while($row = $result->fetch_assoc ()) {
         $streamname = htmlentities($row["stream_name"]);
 		$gamename = htmlentities($row["game_playing"]);
+		$backloc = $row["background_loc"];
         $hash = $row["hash"];
         if($row["live"]==true){
           $live = "Live";
         }
     }
+	
 $gamestring = "";
 if(!empty($gamename)){
-	$gamestring="<h3 class=''>
+	$gamestring="<h3 class='' style:>
              <span>playing </span>$gamename
           </h3>";
 }
@@ -129,12 +135,7 @@ echo '
           <!-- Collect the nav links, forms, and other content for toggling -->
           <div class="collapse navbar-collapse" id="navbarMain">
             <ul class="nav navbar-nav navbar-right">
-              <li>
-                <a href="" class="btn btn-primary-outline" data-toggle="modal" data-target="#signUp">Sign Up</a>
-              </li>
-              <li>
-                <a href="" data-toggle="modal" data-target="#login">Login</a>
-              </li>
+            '.$header.'
             </ul>
 
             <ul class="nav navbar-nav collapsed-color">
@@ -156,7 +157,7 @@ echo '
     <!-- ***** HEADER END ***** -->
 
     <!-- ***** HERO BACKGROUND BLOCK ***** -->
-    <div class="hero-bg video-player" style="background-image: url(images/'.$username.'.jpg);">
+    <div class="hero-bg video-player" style="background-image: url(images/'.$username.'.jpg?'.$backloc.');">
       <div class="color-overlay"></div>
 
       <div class="text-center">
@@ -421,7 +422,7 @@ jwplayer("mainVid").setup({
 
 
   <!-- Custom js with all initialisation and plugin settings -->
-  <script src="js/custom.js"></script>
+  <script src="../js/custom.js"></script>
 
 
 

@@ -10,15 +10,8 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 } 
-$myFile = "/usr/local/nginx/html/users/testPost.html"; // or .php   
-$fh = fopen($myFile, 'w'); // or die("error");  
-$stringData= "";
-foreach($_POST as $key=>$value)
-{
-  $stringData= $stringData."key:".$key." Value:".$value. "                  ";
-}
-fwrite($fh, $stringData);
-if ( !empty($_POST) ) {
+
+if ( !empty($_POST) && $_POST['addr']!="178.62.77.84") { //need to change this to allow restream
 	switch ( $_POST['call'] ) {
 		case "publish":
 			if ( isset($_POST['name']) && $_POST['name'] != NULL ) {

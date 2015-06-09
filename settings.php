@@ -22,7 +22,7 @@ if ($conn->connect_error) {
   $key = "Default key <br><br>";
   $streamname = "Default stream name ";
   $username = "Error";
-
+  $header = "";
   $title = "<h1>Settings: <span>Your User Information</span> </h1>";
   $streams = array();
   $counter = 0;
@@ -51,19 +51,12 @@ $result = $conn->query($sql);
     $pass = $_POST['password'];
     $authed = login($user, $pass);
 
-   if (!$authed) {
-     $login ="<a href='' data-toggle='modal' data-target='#login'>Login</a>";
-    } else {
+   if ($authed) {
+      $header = getHeader();
        $_SESSION['username'] =  $user;
     }
 }
 
-if (isset($_SESSION['username'])) {
-   $login ="<a href='./php/functions.php?action=logout' data-toggle='modal' >Log out</a>"; //i need to get this working
-   $username = $_SESSION['username'];
-} else {
-         $login ="<a href='' data-toggle='modal' data-target='#login'>Login</a>";
-}
  if(isset($_POST['option']) && $_POST['option']=="sign") { signUp(); 
    } else {
  showSettings(); 
@@ -101,17 +94,23 @@ function showSettings(){
       global $conn;
       global $streamname;
 	  global $gamename;
+	  global $username;
       global $key;
       global $title;
       global $imageloc;
+	  global $backloc;
+	  global $header;
+	  $header = getHeader();
       $title = "<h1>Error: <span>Please Log In</span> </h1>";
       $user = $_SESSION['username'];
+	  $username = $user;
       if(isset($_SESSION['username'])){
-      $sql = "SELECT hash,stream_name, user_password, game_playing FROM Users WHERE '$user' = user_name" ;
+      $sql = "SELECT hash,stream_name, user_password, game_playing,background_loc FROM Users WHERE '$user' = user_name" ;
       $result = $conn->query($sql);
       while($row = $result->fetch_row()) {
         $streamname = $row[1];
 		$gamename = $row[3];
+		$backloc = $row[4];
         $key = ($row[0]."?p=".md5($row[2]));
        $title = "<h1>$user: <span>User Information</span> </h1>";
       } 
@@ -232,14 +231,8 @@ location.reload();
           <!-- Collect the nav links, forms, and other content for toggling -->
           <div class='collapse navbar-collapse' id='navbarMain'>
             <ul class='nav navbar-nav navbar-right'>
-              <li>
-                <a href='' class='btn btn-primary-outline' data-toggle='modal' data-target='#signUp'>Sign Up</a>
-              </li>
-              <li>
-                $login
-              </li>
+           $header
             </ul>
-
             <ul class='nav navbar-nav collapsed-color'>
 
               <li class='active'>
@@ -269,7 +262,7 @@ location.reload();
 
 
     <!-- ***** HERO BACKGROUND BLOCK ***** -->
-    <div class='hero-bg' style='background-image: url(users/images/$username.jpg)'>
+    <div class='hero-bg' style='background-image: url(users/images/$username.jpg?$backloc)'>
       <div class='color-overlay'></div>
       
       <div class='hero-fader' >

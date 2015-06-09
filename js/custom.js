@@ -325,7 +325,7 @@ var countNumb = (function() {
       $(this).numerator({
         easing: 'swing', // easing options.
         duration: 2500, // the length of the animation.
-        delimiter: ' ',
+        delimiter: ',',
         rounding: 0, // decimal places.
         toValue: dataNumber // animate to this value.
       });
