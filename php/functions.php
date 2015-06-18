@@ -12,8 +12,7 @@ if(isset($_REQUEST['action']) && !empty($_REQUEST['action'])) {
         case 'logout' : logout();break;
 	case 'picture' : changePicture();break;
 	case 'loadStreams' : loadStreams();break;
-	case 'topStreams' : topStreams();break;
-
+	case 'topStreams' : topStreams($_REQUEST['number'],$_REQUEST['number2']);break;
         // ...etc...
     }
 }
@@ -58,12 +57,40 @@ session_start();
 unset($_SESSION["username"]);
 header('Location: ../flowy.php'); 
 }
+function getViewers($hash){
+global $conn;
+$conn->real_escape_string($hash);
+$sql = "Select count(*) as total from viewers, Users where '$hash'=viewers.stream_name and viewers.stream_name=Users.hash AND live=1 AND time_done is null";
+$result = $conn->query($sql);
+$returnage =0;
+while($row = $result->fetch_assoc ()) {
+	if(!empty($row['total'])){
+$returnage = $row['total'];
+}
+}
+return $returnage;
+}
+
+function getAllViewers(){
+global $conn;
+$sql = "Select hash from Users";
+$result = $conn->query($sql);
+$returnage =0;
+while($row = $result->fetch_assoc ()) {
+	if(!empty($row['hash'])){
+$returnage +=getViewers($row['hash']);
+}
+}
+return $returnage;
+}
+
 function loadStreams(){
 global $conn;
 $counter =0;
 $streams = array();
-$sql = "Select user_name,stream_name, viewers from Users where live=1";
+$sql = "Select user_name,Users.stream_name, hash from Users where live=1";
 $result = $conn->query($sql);
+$timeend = intval(time()/100);
  while($row = $result->fetch_assoc ()) {
         $counter++;
  $streamshort=$row['stream_name'];
@@ -74,22 +101,18 @@ $result = $conn->query($sql);
         if(strlen($usershort)>17){
           $usershort=substr($usershort,0,25)."...";
         }
-      $views = $row['viewers'];
-      if($views<0){
-        $views = 0;
-      }
+      $views = getViewers($row['hash']);
+ 
 		$filename=$usershort;
 		if(file_exists("/usr/local/nginx/html/users/images/thumbs/{$usershort}thumbsmall.jpg")){
-			$filename = "../users/images/thumbs/{$usershort}thumbsmall.jpg";
+			$filename = "../users/images/thumbs/{$usershort}thumbsmall.jpg?$timeend";
 		}else{
-			//if(file_exists("/usr/local/nginx/html/users/images/{$usern}.jpg")){
-			//$filename = "../users/images/{$usern}.jpg";
-		   // } else {
+		
 				$filename = "../users/images/thumbs/genericthumb.jpg";
 			
 		}
-       $streams[]="<div class='col-md-3 col-xs-6'>
-       <a href=../users/user?user={$row['user_name']}>
+       $streams[]="<div class='col-md-3 col-xs-12'>
+       <a href=../users/user?user={$usershort}#stream>
        <img src={$filename}>
              <h4>
                 <strong>{$streamshort}</a></strong>
@@ -110,11 +133,12 @@ $totalString= $totalString."".$value;
 }    
 echo $totalString;
 }
-function topStreams(){
+function topStreams($limit1, $limit2){
 global $conn;
 $streams = array();
-$sql = "select user_name, hash, Users.stream_name,Users.viewers, total from Users, (select *  from (select stream_name,count(*) as total from viewers group by stream_name)as temp ORDER BY total desc)as temp2 where Users.hash = temp2.stream_name order by total desc limit 4";
+$sql = "select user_name, hash, Users.stream_name,Users.viewers, total from Users, (select *  from (select stream_name,count(*) as total from viewers group by stream_name)as temp ORDER BY total desc)as temp2 where Users.hash = temp2.stream_name order by total desc limit $limit1,$limit2";
 $result = $conn->query($sql);
+$timeend = intval(time()/100);
  while($row = $result->fetch_assoc ()) {
         
  $streamshort=$row['stream_name'];
@@ -131,16 +155,14 @@ $result = $conn->query($sql);
       }
 		$filename=$usershort;
 		if(file_exists("/usr/local/nginx/html/users/images/thumbs/{$usershort}thumbsmall.jpg")){
-			$filename = "../users/images/thumbs/{$usershort}thumbsmall.jpg";
+			$filename = "../users/images/thumbs/{$usershort}thumbsmall.jpg?$timeend";
 		}else{
-			//if(file_exists("/usr/local/nginx/html/users/images/{$usern}.jpg")){
-			//$filename = "../users/images/{$usern}.jpg";
-		   // } else {
+		
 				$filename = "../users/images/thumbs/genericthumb.jpg";
 			
 		}
-       $streams[]="<div class='col-md-3 col-xs-6'>
-       <a href=../users/user?user={$row['user_name']}>
+       $streams[]="<div class='col-md-3 col-xs-12'> 
+       <a href=../users/user?user={$row['user_name']}#stream>
        <img src={$filename}>
              <h4>
                 <strong>{$streamshort}</a></strong>
@@ -155,6 +177,7 @@ $totalString= $totalString."".$value;
 }    
 echo $totalString;
 }
+
 function getHeader(){
 $returnString = "";
 session_start();

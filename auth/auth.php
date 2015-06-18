@@ -79,16 +79,23 @@ if ( !empty($_POST) && $_POST['addr']!="178.62.77.84") { //need to change this t
 			$add = $conn->real_escape_string($_POST['addr']);				
 			$hash =$conn->real_escape_string($_POST['name']);
 			$client = $conn->real_escape_string($_POST['clientid']);
-			$hash =$conn->real_escape_string($_POST['name']);
+			
 			$time = time();
-			$sql = "UPDATE Users SET viewers = viewers + 1 WHERE '$hash'=hash";
+			$sql = "select count(*) as total from Users WHERE '$hash'=hash AND live=true";
 			$result = $conn->query($sql);
+			while($row = $result->fetch_assoc ()) {
+			if(!empty($row['total'])){
 			$sql = "INSERT INTO viewers (stream_name, address, client_id, time)
 			VALUES ('$hash','$add','$client','$time')";
 			$result = $conn->query($sql);
+			break;
+			}else{
+			header("HTTP/1.1 403 Forbidden"); // Drop the session 
+			}
 
-				
-			} 
+			}
+}
+			
 		$conn->close();
 
 		break;

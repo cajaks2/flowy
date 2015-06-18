@@ -70,13 +70,13 @@ function signUp(){
   global $conn;
   global $title;
   $username = $conn->real_escape_string($_POST['username']); 
-  $username = preg_replace("/[^a-zA-Z0-9]+/", "", $username);
+  //$username = preg_replace("/[^a-zA-Z0-9]+/", "", $username);
   $email = $conn->real_escape_string($_POST['email']);
   $sql = "select * from Users where user_name = '$username';";
   $result = $conn->query($sql);
   if($result->num_rows ==0){
   $password = sha1($conn->real_escape_string($_POST['password'])); 
-  $stream = htmlentities($conn->real_escape_string($_POST['streamname']));
+  $stream = $conn->real_escape_string($_POST['streamname']);
   $hash = sha1($password." ".$email." ".time()); 
   $sql = "INSERT INTO Users (email, user_name, user_password, stream_name, hash)
   VALUES ('$email','$username','$password', '$stream','$hash' )";
@@ -290,8 +290,8 @@ location.reload();
           <div class='row'>
             <div class='col-md-6 col-sm-12'>
               <h2 class='color'>All your Flowy <span>Information!</span></h2>
-              <span class='subtitle'>$username's Information</span>
-
+              <span class='subtitle'>$username's Information</span><br>
+		<span class='subtitle'><a href=../users/user?user=$username#stream> Your Page URL</a></span>
               <p class='margin-bottom'> Make sure your OBS settings are correct if you encounter any errors while streaming in.</p>
               <a href ='http://help.twitch.tv/customer/portal/articles/1262922-open-broadcaster-software'>Check out Twitch's guide for OBS </a>
 
@@ -350,14 +350,12 @@ location.reload();
             </h2>
             <span class='subtitle'>This is your current background</span>
           </div>
-
-          <div class='margin-top margin-bottom'>
-            <img src='users/images/$imageloc.jpg' alt='' id'previewimage'>
+		<div class ='col-md-6'>
+            <img src='users/images/$imageloc.jpg' alt='' id'previewimage' style='width: 100%; height: 100%;'>
           </div>
 
-          <div class='row'>
-            <div class='col-md-offset-2 col-md-8 text-justify'>
-              <p>You can change it!</p>
+          <div class ='col-md-6'>
+              <p>Under 500KB please!</p>
 <form id='uploadimage'  method='post'  enctype='multipart/form-data'>
 <input type='hidden' name='action' value='picture'>
         <input id='file' type='file'  name='file' required/><br>
@@ -365,7 +363,7 @@ location.reload();
 
         <input type='submit'  value='Upload' class = 'submit'/>        
         </form>
-              </div>
+              
             </div>
           </div>
         </div>

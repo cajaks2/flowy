@@ -16,20 +16,14 @@ if ($conn->connect_error) {
 } 
 
    global $conn;
-  $sql = "Select sum(viewers) as totalsum from Users";
-  $result = $conn->query($sql);
   $total = 0;
-  $views = 0;
+  $views = getAllViewers();
   $mins = 0;
   $streams = array();
   $counter = 0;
   $header = getHeader();
-while($row = $result->fetch_assoc ()) {
-        $views = $row['totalsum'];
-    }
-if($views<0){
-$views =0; 
-}
+  $backgroundnum = rand(2,4);
+
    $sql = "Select count(*) as total from viewers";
   $result = $conn->query($sql);
   while($row = $result->fetch_assoc ()) {
@@ -77,10 +71,11 @@ echo "
   <script src='js/jquery-1.9.1.js'></script>
 <script src='js/jquery-1.9.1.js'></script>
 <script type='text/javascript'>
+var sqlPage=0;
 function loadStreams()
 {
     $.ajax({ url: '../php/functions.php',
-        data: {'action':'loadStreams'},
+        data: {action:'loadStreams'},
         type: 'post',
         success: function(responseText) {
                   $('#loadStreams').html(responseText);
@@ -89,15 +84,46 @@ function loadStreams()
 }
 function topStreams()
 {
+	
+		
     $.ajax({ url: '../php/functions.php',
-        data: {'action':'topStreams'},
+        data: {'action':'topStreams', number:sqlPage, number2:4},
+        type: 'post',
+        success: function(responseText) {
+
+                  $('#topStreams').html($('#topStreams').html()+responseText);
+     			sqlPage=sqlPage+4;
+			if(!responseText){ $('#moreButton').attr('onclick', 'collapse()');
+			$('#moreButton').html('Collapse');
+		
+}
+        }
+
+    });
+
+}
+function collapse()
+{
+	sqlPage=0;
+	    $.ajax({ url: '../php/functions.php',
+        data: {'action':'topStreams', number:sqlPage, number2:4},
         type: 'post',
         success: function(responseText) {
                   $('#topStreams').html(responseText);
+			sqlPage=sqlPage+4;
+			$('#moreButton').attr('onclick', 'topStreams()');
+			$('#moreButton').html('More');
+
+
         }
+
     });
+location.href = '#streams';
+
+
 }
      $(document).ready(function() {
+		
 		 loadStreams();
 		 topStreams();
        var refreshId = setInterval(function() {
@@ -166,7 +192,7 @@ function topStreams()
     <!-- ***** HEADER END ***** -->
 
 
-    <div class='hero-bg' style='background-image: url(img/hero-bg/2.jpg);'>
+    <div class='hero-bg' style='background-image: url(img/hero-bg/$backgroundnum.jpg);'>
       <div class='color-overlay'></div>
 
       <div class='aligned-container'>
@@ -218,7 +244,10 @@ function topStreams()
           <div class='row text-center' id='topStreams'>
 
           </div>
-		  <div class='margin-bottom'></div>
+		  <button id='moreButton' class='btn btn-primary-outline'  onclick='topStreams()'>More</button>
+
+<div class='margin-bottom'></div>
+
 
         </div>
 		

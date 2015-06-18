@@ -17,8 +17,7 @@ if ($conn->connect_error) {
   } else {
      $username = $conn->real_escape_string($_REQUEST['user']);
   }
-  $sql = "Select viewers from Users where user_name = '{$username}'";
-  $result = $conn->query($sql);
+
  if($result->num_rows === 0)
     {
         $username='cajaks2';
@@ -30,19 +29,14 @@ if ($conn->connect_error) {
   $counter = 0;
   $streamname = "";
   $gamename="";
-  $backloc;
   $mins = 0;
   $header = getHeader();
   $live = "Not Currently Streaming";
-while($row = $result->fetch_assoc ()) {
-        $views = $row["viewers"];
-    }
+
 
   $counter=0;
     
-    if($views<0){
-      $views=0;
-    }   
+   
    $sql = "Select count(*) as total from viewers, Users where Users.hash=viewers.stream_name AND Users.user_name = '{$username}'";
   $result = $conn->query($sql);
   while($row = $result->fetch_assoc ()) {
@@ -54,13 +48,13 @@ $result = $conn->query($sql);
  while($row = $result->fetch_assoc ()) {
         $mins = $row["time"];
     }
-$sql = "Select stream_name, live, hash, game_playing, background_loc from Users where user_name = '{$username}'";
+$sql = "Select stream_name, live, hash, game_playing from Users where user_name = '{$username}'";
 $result = $conn->query($sql);
  while($row = $result->fetch_assoc ()) {
         $streamname = htmlentities($row["stream_name"]);
 		$gamename = htmlentities($row["game_playing"]);
-		$backloc = $row["background_loc"];
         $hash = $row["hash"];
+	$views = getViewers($row["hash"]);
         if($row["live"]==true){
           $live = "Live";
         }
@@ -72,6 +66,11 @@ if(!empty($gamename)){
              <span>playing </span>$gamename
           </h3>";
 }
+//auto log chat
+$chatname = "";
+ if (isset($_SESSION['username'])) {
+$chatname=$_SESSION['username'];
+ }
 $conn->close();
 
 
@@ -85,7 +84,7 @@ echo '
   <title>Flowy | '.$username.'</title>
 
   <!--SEO Meta Tags-->
-  <meta name="description" content="Flowy: kok" />
+  <meta name="description" content="Flowy: Free Video Streaming" />
   <meta name="keywords" content="video streaming" />
   <meta name="author" content="kok" />
 
@@ -106,6 +105,21 @@ echo '
 
   <!--Modernizr extention-->
   <script src="js/libs/detectizr.min.js"></script>
+  
+  <script src="../js/jquery-1.9.1.js"></script>
+  <script type="text/javascript">
+
+function resize()
+{
+   $("#tlkio").height($("#vidHeight").height());
+}
+ $(document).ready(function() {
+		resize();
+    });
+            window.onresize = function() {
+                resize();
+            };
+</script>
 </head>
 
 <body class="parallax">
@@ -157,12 +171,15 @@ echo '
     <!-- ***** HEADER END ***** -->
 
     <!-- ***** HERO BACKGROUND BLOCK ***** -->
-    <div class="hero-bg video-player" style="background-image: url(images/'.$username.'.jpg?'.$backloc.');">
-      <div class="color-overlay"></div>
+    <div class="hero-bg video-player" style="background-image: url(images/'.$username.'.jpg);">
+	
+      <div class="color-overlay" style="z-index:0;"></div>
+	   <div class="container" id="stream" style="width: 90%;">
+	   
 
       <div class="text-center">
-        <div class="container">
-          <h2 class="">
+
+  <h2 class="">
             '.$streamname.' <span>by</span> '.$username.'
           </h2>
 		  '.$gamestring.'
@@ -170,7 +187,9 @@ echo '
         <p class="margin-bottom">
         '.$live.'
         </p>
-          <div class="home-player-container">
+<div class="row">
+          <div class="home-player-container col-lg-9" id="vidHeight">
+         
             <div class="embed-responsive embed-responsive-16by9">
             
              <script type="text/javascript" src="http://178.62.77.84/jwplayer/jwplayer.js"></script>
@@ -179,23 +198,22 @@ echo '
 <script type="text/javascript">
 jwplayer("mainVid").setup({
     file: "rtmp://178.62.77.84/flowy/'.$hash.'",
-    height: 562,
-    width: 1000,
+    height: "56%",
+    width: "100%",
     image: "http://www.cooperandrewjackson.com/users/images/thumbs/'.$username.'thumb.jpg",
 
 });
 </script>
 </div>
-
-            </div>
-          </div>
-        </div>
+ </div>		<div class = "col-lg-3 ">
+			<div id="tlkio" data-nickname ="'.$chatname.'" data-channel="'.$username.'" style=" width: 100%; background:rgba(255,255,255,0.8);"></div><script async src="http://tlk.io/embed.js" type="text/javascript"></script>
+</div>
+			</div>
+			
+        
       </div>
-    </div>
-
-          </div>
-        </div>
-      </section>
+	  </div>
+       </div>
     <main class="content main-animation">
  <section id="digit-animation" class="digitizer text-center" style="background-image: url(img/parallax-bg.jpg)" data-stellar-background-ratio="0.5">
 
@@ -297,7 +315,6 @@ jwplayer("mainVid").setup({
     </footer>
     <!-- .footer -->
 
-  </div>
   <!-- .wrapper -->
 
 
@@ -422,7 +439,7 @@ jwplayer("mainVid").setup({
 
 
   <!-- Custom js with all initialisation and plugin settings -->
-  <script src="../js/custom.js"></script>
+  <script src="js/custom.js"></script>
 
 
 
